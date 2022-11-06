@@ -3,6 +3,10 @@ import React from 'react'
 import { useState } from 'react'
 import { addUser } from '../service/api';
 import { useNavigate } from "react-router-dom";
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { editData } from '../service/api';
+import { updateData } from '../service/api';
 
 const Container=styled(FormGroup)`
     width:50%;
@@ -29,25 +33,38 @@ const initData={
     phone:""
 }
 
-const AddUser = () => {
+
+const EditUser = () => {
 
     const navigate=useNavigate();
 
     const [data,setData]=useState(initData);
 
+    const {id}=useParams();
+
+    useEffect(()=>{
+        EditUser();
+    },[])
+
+    const EditUser=async()=>{
+        const userData=await editData(id);
+        setData(userData.data[0]);
+        console.log(userData.data[0]);
+    }
+
     const onValueChange=(e)=>{
         setData({...data,[e.target.name]:e.target.value})
         console.log(data);
     }
-
-    const addUserDetails=async()=>{
-        await addUser(data);
+    
+    const addUserDetails=async(e)=>{
+        await updateData(data,id);
         navigate('/all');
     }
 
   return (
     <Container>
-        <Typography variant="h4">Add User</Typography>
+        <Typography variant="h4">Edit User</Typography>
         <InputContainer>
             <InputLabel>Name</InputLabel>
             <Input value={data.name} name="name" onChange={(e)=>{onValueChange(e)}}/>
@@ -65,10 +82,10 @@ const AddUser = () => {
             <Input value={data.phone} name="phone" onChange={(e)=>{onValueChange(e)}}/>
         </InputContainer>
         <InputContainer>
-            <AddButton variant="contained" onClick={()=>addUserDetails()}>Add User</AddButton>
+            <AddButton variant="contained" onClick={()=>addUserDetails()}>Edit User</AddButton>
         </InputContainer>
     </Container>
   )
 }
 
-export default AddUser
+export default EditUser
